@@ -13,7 +13,6 @@ addpath(genpath(rootDir));
 [X, Y] = loaddata(8);
 
 X = X./max(X, [], 2);
-[num, dim] = size(X);
 c = length(unique(Y));
 
 %% set parameter
@@ -27,4 +26,12 @@ delta = 5;
 anchors = [];
 for t = 0:num_sampling
     anchors = [anchors_init, anchors_init*c+t*delta*c];
+end
+
+%% 
+result = [];
+for t = 1:num_sampling
+   [F, obj, runtime, alphaA] = AHD_EC(k, order, X, anchors(t), c);
+   res = ClusteringMeasure1(Y, F);
+   ressult = [result, res];
 end
