@@ -1,4 +1,4 @@
-function result = ClusteringMeasure1(Y, predY)
+function [ACC, MIhat, Purity, Fscore, P, R, RI] = ClusteringMeasure1(Y, predY)
 % Y：真实标签
 % predY：聚类预测标签
 % result：输出结果[ACC MIhat Purity  F P R RI]
@@ -63,11 +63,11 @@ function result = ClusteringMeasure1(Y, predY)
     MIhat = MutualInfo(Y,res);
     
     % F得分
-    [F,P,R] = compute_f(Y,res);
+    [Fscore,P,R] = compute_f(Y,res);
     
     % Rand Index（兰德系数）
     RI = rand_index(Y, res);
-    result = [ACC MIhat Purity  F P R RI];
+    %result = [ACC MIhat Purity  Fscore P R RI];
 end
 
 %% ===== helper functions =====

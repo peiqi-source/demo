@@ -1,25 +1,21 @@
-function [labels, obj, runtime, alphaA] = AHD_EC(k, order, X, anchors, c, anchor_select)
+function [labels, obj, runtime, alphaA] = AHD_EC(k, order, X, anchors, c)
 %%
-tic;
 disp('---Anchor Selection---');
-[num, dim] = size(X);
-if anchor_select == 1 % rand sample
-    vec = randperm(num); % randperm(n)：1..n 的随机排列
-    ind = vec(1:anchors);
-    centers = X(ind, :);
-elseif anchor_select == 2 % kmeans sample
-    [~, centers, ~, ~, ~] = litekmeans(X, anchors);  % 直接用 kmeans 的中心作为锚点（锚点不一定是原样本点）
+if anchor_select == 1 % direct sample
+    [~,ind,~] = graphgen_anchor(X,m);
+    centers = X(ind, :);% m x dim
+else
 elseif anchor_select == 3 % KNP
-    [~, ~, ~, ~, dis] = litekmeans(X,anchors);
+    [~, ~, ~, ~, dis] = litekmeans(X,m);
     [~,ind] = min(dis,[],1); % 离中心最近的样本作为锚点
     ind = sort(ind,'ascend');
     centers = X(ind, :);
-elseif anchor_select == 4 % DAS
-    [~,ind,~] = graphgen_anchor(X,anchors);
-    centers = X(ind, :);% anchors x dim
+elseif anchor_select == 4 % kmeans sample
+    [~, centers, ~, ~, ~] = litekmeans(X, m);  % 直接用 kmeans 的中心作为锚点（锚点不一定是原样本点）
 end
+[num, dim] = size(X);
+[~, centers, ~, ~, ~] = litekmeans(X, anchors); % 对 X 做 kmeans 得 m_t 个 anchors
 
-%%
 disp('---Generate 1-st order 2P Graphs---');
 D = L2_distance_1(X', centers'); % n x m ，算每个样本到每个 anchor 距离
 [~, idx] = sort(D, 2);
@@ -54,7 +50,5 @@ for i = 1:order
 end
 
 F_init = Y_Initialize(num, c); % 初始化一个随机 one-hot 指示矩阵（离散聚类指示矩阵F）
-[labels,obj,~,alphaA] = MDC(S,F_init); % MDC 会学习每个基础聚类的权重 alpha，并更新最终聚类 F
-runtime = toc;
-
+[labels,obj,runtime,alphaA] = MDC(S,F_init); % MDC 会学习每个基础聚类的权重 alpha，并更新最终聚类 F
 
