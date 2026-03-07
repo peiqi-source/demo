@@ -53,7 +53,9 @@ for i = 1:order
     S{i} = F_d*F_d'; % 连续的基聚类结果
 end
 
-F_init = Y_Initialize(num, c); % 初始化一个随机 one-hot 指示矩阵（离散聚类指示矩阵F）
+%%
+disp('---Generate consensus clustering---')
+F_init = Y_Initialize_SVD(S, c); % 初始化一个随机 one-hot 指示矩阵（离散聚类指示矩阵F）
 [labels,obj,~,alphaA] = MDC(S,F_init); % MDC 会学习每个基础聚类的权重 alpha，并更新最终聚类 F
 runtime = toc;
 
