@@ -1,0 +1,51 @@
+# ==========================================
+# MATLAB 专用 .gitignore 配置
+# ==========================================
+
+# 自动保存与临时文件 (Autosave & Temp files)
+*.asv
+*.bak
+*.tmp
+*~
+
+# 编译的二进制文件 (MEX binaries)
+*.mex
+*.mexn32
+*.mexmaci
+*.mexmaci64
+*.mexmaca64
+*.mexa64
+*.mexw32
+*.mexw64
+*.mexglx
+*.mexs64
+
+# Simulink 缓存与自动生成的代码 (Simulink Cache & Code Generation)
+slprj/
+sfprj/
+*.slxc
+*.rtw
+
+# 崩溃转储与日志文件 (Crash logs & Reports)
+matlab_crash_dump.*
+core*
+*.log
+*.err
+
+# App Designer / 工具箱打包安装文件
+*.mlappinstall
+*.mlpkginstall
+*.mltbx
+
+# MATLAB 项目相关的本地用户偏好设置 (Local Project Preferences)
+resources/project/Preferences.xml
+.SimulinkProject/
+
+# ==========================================
+# 视情况取消注释 (Optional)
+# ==========================================
+# 如果你的项目包含极大的本地数据文件，建议不要提交它们到 Git
+# *.mat
+# *.dat
+# *.csv
+# *.fig

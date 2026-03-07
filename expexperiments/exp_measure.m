@@ -13,7 +13,6 @@ addpath(genpath(rootDir));
 [X, Y] = loaddata(8);
 
 X = X./max(X, [], 2);
-[num, dim] = size(X);
 c = length(unique(Y));
 
 %% set parameter
@@ -21,10 +20,21 @@ rng(1);
 k = 5;
 order = 3;
 num_sampling = 3;
-anchors_init = 10;
+anchors_rate = 10;
 delta = 5;
 
 anchors = [];
-for t = 0:num_sampling
-    anchors = [anchors_init, anchors_init*c+t*delta*c];
+for t = 1:num_sampling
+    anchors = [anchors, anchors_rate*c+(t-1)*delta*c];
+end
+
+%% 
+result = [];
+for t = 1:num_sampling
+    for a = 1:4
+        fprintf("=== %d 次实验，锚点数为：%d，锚点选择方式：%d ===\n", t, anchors(t), a);
+        [F, obj, runtime, alphaA] = AHD_EC(k, order, X, anchors(t), c, a);
+        [ACC, MIhat, Purity,  Fscore, ~, ~, ~] = ClusteringMeasure1(Y, F);
+        result(t, a, :) = [ACC, MIhat, Purity, Fscore, runtime];
+    end
 end
