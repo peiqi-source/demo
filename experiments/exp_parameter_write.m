@@ -35,35 +35,28 @@ for ar = param_anchors_rate
         for ns = param_num_sampling
             for k_val = param_k
                 for seed = param_rng
-                    
                     rng(seed);
                     anchors = [];
                     for t = 1:ns
                         anchors = [anchors, ar*c+(t-1)*delta*c];
                     end
-                    
-                    for a = 1:4
-                        % 1. 运行核心实验
-                        [F, obj, runtime, alphaA] = AHD_EC(k_val, ord, X, anchors, c, a);
-                        
-                        % 2. 处理每一次运行的两个结果 (run_id 1 和 2)
-                        for i = 1:2
-                            [ACC, MIhat, Purity, Fscore, ~, ~, ~] = ClusteringMeasure2(Y, F{i});
-                            
-                            % 3. 构建单行表格
-                            result_data = table(ar, ord, ns, k_val, seed, a, i, ACC, MIhat, Purity, Fscore, runtime, ...
-                                'VariableNames', {'AnchorsRate', 'Order', 'NumSampling', 'K', 'Seed', 'Method', 'F_MadeStyle', 'ACC', 'NMI', 'Purity', 'Fscore', 'Runtime'});
-                            
-                            % 4. 追加写入磁盘
-                            if isFirst
-                                writetable(result_data, csvFileName, 'WriteMode', 'overwrite');
-                                isFirst = false;
-                            else
-                                writetable(result_data, csvFileName, 'WriteMode', 'append', 'WriteVariableNames', false);
-                            end
+                    % 1. 运行核心实验
+                    [F, obj, runtime, alphaA] = AHD_EC(k_val, ord, X, anchors, c);
+                    % 2. 处理每一次运行的两个结果 (run_id 1 和 2)
+                    for i = 1:2
+                        [ACC, MIhat, Purity, Fscore, ~, ~, ~] = ClusteringMeasure2(Y, F{i});
+                        % 3. 构建单行表格
+                        result_data = table(ar, ord, ns, k_val, seed, i, ACC, MIhat, Purity, Fscore, runtime, ...
+                            'VariableNames', {'AnchorsRate', 'Order', 'NumSampling', 'K', 'Seed', 'F_MadeStyle', 'ACC', 'NMI', 'Purity', 'Fscore', 'Runtime'});
+                        % 4. 追加写入磁盘
+                        if isFirst
+                            writetable(result_data, csvFileName, 'WriteMode', 'overwrite');
+                            isFirst = false;
+                        else
+                            writetable(result_data, csvFileName, 'WriteMode', 'append', 'WriteVariableNames', false);
                         end
-                        fprintf("Saved: AR=%d, Ord=%d, NS=%d, K=%d, Seed=%d, Method=%d\n", ar, ord, ns, k_val, seed, a);
                     end
+                    fprintf("Saved: AR=%d, Ord=%d, NS=%d, K=%d, Seed=%d\n", ar, ord, ns, k_val, seed);
                 end
             end
         end

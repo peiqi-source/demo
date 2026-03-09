@@ -11,7 +11,7 @@ resultsDir = fullfile(rootDir, 'results');
 addpath(genpath(rootDir));
 
 %% load data
-[X, Y] = loaddata(9);
+[X, Y] = loaddata(8);
 
 X = X./max(X, [], 2);
 c = length(unique(Y));
@@ -36,11 +36,9 @@ row_idx = 1;
 for a = 1:4
     fprintf("\n=== 锚点选择方式：%d ===\n", a);
     [F, obj, runtime, alphaA] = AHD_EC(k, order, X, anchors, c, a);
-    for i = 1:2
-        [ACC, MIhat, Purity,  Fscore, ~, ~, ~] = ClusteringMeasure2(Y, F{i});
-        result_matrix(row_idx, :) = [i, ACC, MIhat, Purity, Fscore, runtime];
-        row_idx = row_idx + 1;
-    end
+    [ACC, MIhat, Purity,  Fscore, ~, ~, ~] = ClusteringMeasure2(Y, F{i});
+    result_matrix(row_idx, :) = [i, ACC, MIhat, Purity, Fscore, runtime];
+    row_idx = row_idx + 1;
 end
 varNames = {'F_MadeStyle', 'ACC', 'NMI', 'Purity', 'Fscore', 'Runtime'};
 result_table = array2table(result_matrix, 'VariableNames', varNames);

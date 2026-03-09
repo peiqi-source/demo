@@ -1,25 +1,12 @@
-function [labels_all, obj_all, runtime, alphaA_all] = AHD_EC(k, order, X, anchors, c, anchor_select)
+function [F, obj, runtime, alphaA] = AHD_EC(k, order, X, anchors, c)
 %%
 tic;
 [~, num_sampling] = size(anchors);
 [num, ~] = size(X);
 for t = 1:num_sampling
     disp('---Anchor Selection---');
-    if anchor_select == 1 % rand sample
-        vec = randperm(num); % randperm(n)：1..n 的随机排列
-        ind = vec(1:anchors(t));
-        centers{t} = X(ind, :);
-    elseif anchor_select == 2 % kmeans sample
-        [~, centers{t}, ~, ~, ~] = litekmeans(X, anchors(t));  % 直接用 kmeans 的中心作为锚点（锚点不一定是原样本点）
-    elseif anchor_select == 3 % 离中心最近的 原始数据点 作为锚点
-        [~, ~, ~, ~, dis] = litekmeans(X,anchors(t));
-        [~,ind] = min(dis,[],1); 
-        ind = sort(ind,'ascend');
-        centers{t} = X(ind, :);
-    elseif anchor_select == 4 % DAS
-        [~,ind,~] = graphgen_anchor(X,anchors(t));
-        centers{t} = X(ind, :);% anchors x dim
-    end
+    [~,ind,~] = graphgen_anchor(X,anchors(t)); % DAS
+    centers{t} = X(ind, :);% anchors x dim
     if num <= anchors(t) % 防止锚点数超过样本数
         anchors(t) = 9*c; % 设置锚点上限
     end
@@ -63,19 +50,10 @@ end
 
 %%
 disp('---Generate consensus clustering---')
-labels_all = cell(1,2);
-obj_all    = cell(1,2);
-alphaA_all  = cell(1,2);
-for run_id = 1:2
-    if run_id == 1
-        F_init = Y_Initialize_SVD(S, c); % 初始化 指示矩阵（离散聚类指示矩阵F）
-    elseif run_id == 2
-        F_init = Y_Initialize_rand(S, c); % 初始化一个随机 one-hot 指示矩阵（离散聚类指示矩阵F）
-    end
-    [labels_i, obj_i, ~, alphaA_i] = MDC(S,F_init); % MDC 会学习每个基础聚类的权重 alpha，并更新最终聚类 F
-    labels_all{run_id} = labels_i;
-    obj_all{run_id}    = obj_i;
-    alphaA_all{run_id}  = alphaA_i;
-end
+
+F_init = Y_Initialize_rand(S, c); % 初始化一个随机 one-hot 指示矩阵（离散聚类指示矩阵F）
+[F, obj, ~, alphaA] = MDC(S,F_init); % MDC 会学习每个基础聚类的权重 alpha，并更新最终聚类 F
 
 runtime = toc;
+end
+
