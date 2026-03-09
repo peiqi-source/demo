@@ -1,4 +1,12 @@
+<<<<<<< HEAD
 function [ACC, MIhat, Purity, Fscore, P, R, RI] = ClusteringMeasure1(Y, predY)
+=======
+<<<<<<<< HEAD:utils/ClusteringMeasure1.m
+function result = ClusteringMeasure1(Y, predY)
+========
+function [ACC, MIhat, Purity, Fscore, P, R, RI] = ClusteringMeasure2(Y, predY)
+>>>>>>>> b2:utils/ClusteringMeasure2.m
+>>>>>>> b2
 % Y：真实标签
 % predY：聚类预测标签
 % result：输出结果[ACC MIhat Purity  F P R RI]
@@ -67,7 +75,12 @@ function [ACC, MIhat, Purity, Fscore, P, R, RI] = ClusteringMeasure1(Y, predY)
     
     % Rand Index（兰德系数）
     RI = rand_index(Y, res);
+<<<<<<< HEAD
     %result = [ACC MIhat Purity  Fscore P R RI];
+=======
+    
+    result = [ACC MIhat Purity  Fscore P R RI];
+>>>>>>> b2
 end
 
 %% ===== helper functions =====
