@@ -60,11 +60,7 @@ for i = 1:order*num_sampling
     F_d = ind2vec(labels')'; % labels one-hot 成 F_d
     S{i} = F_d*F_d'; % 连续的基聚类结果
 end
-<<<<<<< Updated upstream
 
-F_init = Y_Initialize(num, c); % 初始化一个随机 one-hot 指示矩阵（离散聚类指示矩阵F）
-[labels,obj,~,alphaA] = MDC(S,F_init); % MDC 会学习每个基础聚类的权重 alpha，并更新最终聚类 F
-=======
 %%
 disp('---Generate consensus clustering---')
 labels_all = cell(1,2);
@@ -81,5 +77,5 @@ for run_id = 1:2
     obj_all{run_id}    = obj_i;
     alphaA_all{run_id}  = alphaA_i;
 end
->>>>>>> Stashed changes
+
 runtime = toc;
