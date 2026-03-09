@@ -22,7 +22,15 @@ elseif ind ==9
 elseif ind ==10
     load('PIE_vec.mat');
 elseif ind ==11
-    load('X_highdimen.mat');    
+    load('X_highdimen.mat');
+elseif ind == 100
+    data = load('data_MNIST.mat');
+    X = data.fea;
+    Y = data.gt;
+elseif ind == 101
+    data = load('data_PenDigits.mat');
+    X = data.fea;
+    Y = data.gt;
 end
 
 end

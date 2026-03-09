@@ -11,7 +11,7 @@ resultsDir = fullfile(rootDir, 'results');
 addpath(genpath(rootDir));
 
 %% load data
-[X, Y] = loaddata(8);
+[X, Y] = loaddata(9);
 
 X = X./max(X, [], 2);
 c = length(unique(Y));
