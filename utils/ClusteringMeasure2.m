@@ -1,12 +1,4 @@
-<<<<<<< HEAD
-function [ACC, MIhat, Purity, Fscore, P, R, RI] = ClusteringMeasure1(Y, predY)
-=======
-<<<<<<<< HEAD:utils/ClusteringMeasure1.m
-function result = ClusteringMeasure1(Y, predY)
-========
 function [ACC, MIhat, Purity, Fscore, P, R, RI] = ClusteringMeasure2(Y, predY)
->>>>>>>> b2:utils/ClusteringMeasure2.m
->>>>>>> b2
 % Y：真实标签
 % predY：聚类预测标签
 % result：输出结果[ACC MIhat Purity  F P R RI]

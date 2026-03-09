@@ -63,10 +63,6 @@ end
 
 %%
 disp('---Generate consensus clustering---')
-<<<<<<< HEAD
-F_init = Y_Initialize_SVD(S, c); % 初始化一个随机 one-hot 指示矩阵（离散聚类指示矩阵F）
-[labels,obj,~,alphaA] = MDC(S,F_init); % MDC 会学习每个基础聚类的权重 alpha，并更新最终聚类 F
-=======
 labels_all = cell(1,2);
 obj_all    = cell(1,2);
 alphaA_all  = cell(1,2);
@@ -82,5 +78,4 @@ for run_id = 1:2
     alphaA_all{run_id}  = alphaA_i;
 end
 
->>>>>>> b2
 runtime = toc;
