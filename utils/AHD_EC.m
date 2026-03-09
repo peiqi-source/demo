@@ -11,7 +11,7 @@ for t = 1:num_sampling
         centers{t} = X(ind, :);
     elseif anchor_select == 2 % kmeans sample
         [~, centers{t}, ~, ~, ~] = litekmeans(X, anchors(t));  % 直接用 kmeans 的中心作为锚点（锚点不一定是原样本点）
-    elseif anchor_select == 3 % 离中心最近的样本作为锚点
+    elseif anchor_select == 3 % 离中心最近的 原始数据点 作为锚点
         [~, ~, ~, ~, dis] = litekmeans(X,anchors(t));
         [~,ind] = min(dis,[],1); 
         ind = sort(ind,'ascend');
@@ -21,7 +21,7 @@ for t = 1:num_sampling
         centers{t} = X(ind, :);% anchors x dim
     end
     if num <= anchors(t) % 防止锚点数超过样本数
-        anchors(t) = 9*c % 设置锚点上限
+        anchors(t) = 9*c; % 设置锚点上限
     end
     disp('---Generate 1-st order 2P Graphs---');
     D = L2_distance_1(X', centers{t}'); % n x m ，算每个样本到每个 anchor 距离
@@ -58,7 +58,7 @@ B = reshape(B, [], 1);
 for i = 1:order*num_sampling
     [labels,evec] = Tcut_for_bipartite_graph(B{i},c_base(i)); % 对每个二部图 B 做一次 Tcut（谱聚类+kmeans），得到 labels
     F_d = ind2vec(labels')'; % labels one-hot 成 F_d
-    S{i} = F_d*F_d'; % 连续的基聚类结果
+    S{i} = F_d*F_d'; % 第 i 个基聚类结果矩阵
 end
 
 %%
