@@ -49,9 +49,9 @@ for i = 1:length(B)
 end
 
 %%
-% 使用纯随机初始化 (速度最快，最配 MDC)
+% 使用纯随机初始化 
 F_init = H{1};
-% 传入 H 而不是 S！
+% 传入 H 而不是 S
 [F, obj, ~, alphaA] = MDC(H, F_init); 
 
 runtime = toc;

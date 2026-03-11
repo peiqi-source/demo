@@ -1,4 +1,5 @@
 function [F, obj, runtime, alphaA] = MDC(H, F)
+tic;
 NITR = 100; 
 [num, c] = size(F); 
 V = length(H); 
@@ -109,4 +110,5 @@ for iter = 1:NITR
     end
 end
 [~, F] = max(F, [], 2);
+runtime = toc;
 end

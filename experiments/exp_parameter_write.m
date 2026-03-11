@@ -9,7 +9,6 @@ expDir = fileparts(thisFile);
 rootDir = fileparts(expDir);
 resultsDir = fullfile(rootDir, 'results');
 if ~exist(resultsDir, 'dir'), mkdir(resultsDir); end % 确保结果目录存在
-addpath(genpath(rootDir));
 
 %% 数据集设置 
 dataset_list = 1:12; 

@@ -1,4 +1,4 @@
-%% exp_measure.m 性能指标提升实验
+%% exp_measure_speed.m 性能指标提升实验
 clear;
 clc;
 close all;
@@ -8,9 +8,10 @@ thisFile = mfilename("fullpath");
 expDir = fileparts(thisFile);
 rootDir = fileparts(expDir);
 resultsDir = fullfile(rootDir, 'results');
+if ~exist(resultsDir, 'dir'), mkdir(resultsDir); end % 确保结果目录存在
 
 %% load data
-[X, Y] = loaddata(9);
+[X, Y] = loaddata(5);
 
 X = X./max(X, [], 2);
 c = length(unique(Y));
@@ -45,7 +46,7 @@ fprintf('\n=== 实验结果汇总 ===\n');
 disp(result_table);
 
 timestamp = datestr(now, 'yyyymmdd_HHMMSS'); 
-csvFileName = sprintf('results_data9_speed3_%s.csv', timestamp);
+csvFileName = sprintf('results_minist_5000_%s.csv', timestamp);
 savePath = fullfile(resultsDir, csvFileName);
 writetable(result_table, savePath);
 fprintf('实验结果已成功保存至:\n -> %s\n', savePath);

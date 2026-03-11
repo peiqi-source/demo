@@ -10,26 +10,26 @@ elseif ind ==3
 elseif ind ==4
     load('PIE_vec_rate20.mat');
 elseif ind ==5
+    load('minist_5000_50.mat');
+elseif ind ==6
+    load('PIE_vec.mat');
+elseif ind ==11
     data = load('OpticDigits.mat');
     X = data.fea;
     Y = data.gnd;
-elseif ind ==6
+elseif ind ==12
     data = load('USPS.mat');
     X = data.fea;
     Y = data.gnd;
-elseif ind ==7
-    load('coil-100_1000.mat');
-elseif ind ==8
-    load('MSRA25_1024.mat');
-elseif ind ==9
-    load('minist_5000_50.mat');
-elseif ind ==10
-    load('PIE_vec.mat');
-elseif ind ==11
+elseif ind ==13
+    data = load('MNIST_full.mat');
+    X = data.fea;
+    Y = data.gt;
+elseif ind ==14
     data = load('PenDigits.mat');
     X = data.fea;
     Y = data.gnd;
-elseif ind == 12
+elseif ind == 15
     data = load('yeast.mat');
     X = data.fea;
     Y = data.gnd;
