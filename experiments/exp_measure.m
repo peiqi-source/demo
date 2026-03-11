@@ -11,7 +11,7 @@ resultsDir = fullfile(rootDir, 'results');
 if ~exist(resultsDir, 'dir'), mkdir(resultsDir); end % 确保结果目录存在
 
 %% load data
-[X, Y] = loaddata(5);
+[X, Y] = loaddata2(12);
 
 X = X./max(X, [], 2);
 c = length(unique(Y));
@@ -46,7 +46,7 @@ fprintf('\n=== 实验结果汇总 ===\n');
 disp(result_table);
 
 timestamp = datestr(now, 'yyyymmdd_HHMMSS'); 
-csvFileName = sprintf('results_minist_5000_%s.csv', timestamp);
+csvFileName = sprintf('results_covtype_%s.csv', timestamp);
 savePath = fullfile(resultsDir, csvFileName);
 writetable(result_table, savePath);
 fprintf('实验结果已成功保存至:\n -> %s\n', savePath);
