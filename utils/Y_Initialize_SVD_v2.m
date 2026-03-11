@@ -1,4 +1,4 @@
-function F0 = Y_Initialize_SVD(S, c)
+function F0 = Y_Initialize_SVD_v2(S, c)
     [~, graph_num] = size(S);
     
     % =========================================================
