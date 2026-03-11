@@ -8,9 +8,10 @@ thisFile = mfilename("fullpath");
 expDir = fileparts(thisFile);
 rootDir = fileparts(expDir);
 resultsDir = fullfile(rootDir, 'results');
+addpath(genpath(rootDir));
 
 %% load data
-[X, Y] = loaddata(9);
+[X, Y] = loaddata(8);
 
 X = X./max(X, [], 2);
 c = length(unique(Y));
@@ -28,24 +29,28 @@ for t = 1:num_sampling
 end
 
 %% run experiment and record result
-total_exp =  5;
-result_matrix = zeros(total_exp, 5); 
+total_exp =  4*2;
+result_matrix = zeros(total_exp, 6); 
 row_idx = 1;
-for seed = 1:5
-    rng(seed);
-    fprintf("\n===随机种子为：%d===\n", seed);
-    [F, obj, runtime, alphaA] = AHD_EC(k, order, X, anchors, c);
-    [ACC, MIhat, Purity,  Fscore, ~, ~, ~] = ClusteringMeasure2(Y, F);
-    result_matrix(row_idx, :) = [ACC, MIhat, Purity, Fscore, runtime];
-    row_idx = row_idx + 1;
+for j = 1:5
+    rng(j);
+    for a = 1:4
+        fprintf("\n=== 锚点选择方式：%d ===\n", a);
+        [F, obj, runtime, alphaA] = AHD_EC_v2(k, order, X, anchors, c, a);
+        for i = 1:2
+            [ACC, MIhat, Purity,  Fscore, ~, ~, ~] = ClusteringMeasure2(Y, F{i});
+            result_matrix(row_idx, :) = [i, ACC, MIhat, Purity, Fscore, runtime];
+            row_idx = row_idx + 1;
+        end
+    end
 end
-varNames = {'ACC', 'NMI', 'Purity', 'Fscore', 'Runtime'};
+varNames = {'F_MadeStyle', 'ACC', 'NMI', 'Purity', 'Fscore', 'Runtime'};
 result_table = array2table(result_matrix, 'VariableNames', varNames);
 fprintf('\n=== 实验结果汇总 ===\n');
 disp(result_table);
 
 timestamp = datestr(now, 'yyyymmdd_HHMMSS'); 
-csvFileName = sprintf('results_data9_speed3_%s.csv', timestamp);
+csvFileName = sprintf('results_9_SVD_%s.csv', timestamp);
 savePath = fullfile(resultsDir, csvFileName);
 writetable(result_table, savePath);
 fprintf('实验结果已成功保存至:\n -> %s\n', savePath);

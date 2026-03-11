@@ -2,19 +2,23 @@ function [X,Y] = loaddata(ind)
 %UNTITLED2 此处显示有关此函数的摘要
 %   此处显示详细说明
 if ind == 1
-    load('glass_uni.mat');
-elseif ind ==2
-    load('yeast_uni.mat');
-elseif ind ==3
-    load('wine_uni.mat');
-elseif ind ==4
-    load('german_uni.mat');
-elseif ind ==5
-    load('dermatology_uni.mat');
-elseif ind ==6
-    load('JAFFE_1024.mat');
-elseif ind ==7
     load('coil-20_1000.mat');
+elseif ind ==2
+    load('coil-100_1000.mat');
+elseif ind ==3
+    load('MSRA25_1024.mat');
+elseif ind ==4
+    load('PIE_vec_rate20.mat');
+elseif ind ==5
+    data = load('OpticDigits.mat');
+    X = data.fea;
+    Y = data.gnd;
+elseif ind ==6
+    data = load('USPS.mat');
+    X = data.fea;
+    Y = data.gnd;
+elseif ind ==7
+    load('coil-100_1000.mat');
 elseif ind ==8
     load('MSRA25_1024.mat');
 elseif ind ==9
@@ -22,17 +26,13 @@ elseif ind ==9
 elseif ind ==10
     load('PIE_vec.mat');
 elseif ind ==11
-    load('X_highdimen.mat');
-elseif ind == 100
-    data = load('data_MNIST.mat');
+    data = load('PenDigits.mat');
     X = data.fea;
-    Y = data.gt;
-elseif ind == 101
-    data = load('data_PenDigits.mat');
+    Y = data.gnd;
+elseif ind == 12
+    data = load('yeast.mat');
     X = data.fea;
-    Y = data.gt;
-end
-
+    Y = data.gnd;
 end
 
 

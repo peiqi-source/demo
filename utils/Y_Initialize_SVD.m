@@ -54,7 +54,7 @@ function F0 = Y_Initialize_SVD(S, c)
     U = bsxfun(@rdivide, U, sqrt(sum(U.^2, 2)) + 1e-12);
 
     % 锁定随机种子，进行 K-means 划分
-    rng(c); 
+    %rng(c); 
     initLabel = litekmeans(U, c, 'Replicates', 10, 'MaxIter', 200, 'Distance', 'cosine');
     
     % 转化为离散指示矩阵

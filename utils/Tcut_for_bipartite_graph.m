@@ -1,4 +1,4 @@
-function [labels,evec] = Tcut_for_bipartite_graph(B,Nseg,maxKmIters,cntReps,distance)
+function [labels,evec] = Tcut_for_bipartite_graph(B,Nseg,maxKmIters,cntReps)
 % B - |X|-by-|Y|, cross-affinity-matrix
 % 输入：
 % B：num x anchor 的二部图相似度矩阵
@@ -46,6 +46,17 @@ clear D
 evec = Dx * B * Ncut_evec; 
 clear B Dx Ncut_evec
 
+% 强制固定特征向量的符号（消除 eig 的随机翻转）
+for j = 1:size(evec, 2)
+    % 找到该列绝对值最大的元素，强制让它的符号为正
+    [~, max_idx] = max(abs(evec(:, j)));
+    if evec(max_idx, j) < 0
+        evec(:, j) = -evec(:, j);
+    end
+end
+
 % normalize each row to unit norm
 evec = bsxfun( @rdivide, evec, sqrt(sum(evec.*evec,2)) + 1e-10 );
+%rng(Nseg); % 用当前的簇数 Nseg 作为种子，既保证了确定性，又保留了不同簇数下的多样性！
+
 labels = litekmeans(evec,Nseg,'MaxIter',maxKmIters,'Replicates',cntReps,'Distance','cosine');

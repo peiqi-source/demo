@@ -34,7 +34,7 @@ row_idx = 1;
 for seed = 1:5
     rng(seed);
     fprintf("\n===随机种子为：%d===\n", seed);
-    [F, obj, runtime, alphaA] = AHD_EC(k, order, X, anchors, c);
+    [F, obj, runtime, alphaA] = AHD_EC_v2(k, order, X, anchors, c);
     [ACC, MIhat, Purity,  Fscore, ~, ~, ~] = ClusteringMeasure2(Y, F);
     result_matrix(row_idx, :) = [ACC, MIhat, Purity, Fscore, runtime];
     row_idx = row_idx + 1;
