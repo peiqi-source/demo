@@ -1,4 +1,4 @@
-%% exp_parameter_write.m 性能指标提升实验 (分数据集保存 CSV 与 MAT，修正进度提示)
+%% exp_parameter_write.m 
 clear;
 clc;
 close all;
@@ -11,11 +11,11 @@ resultsDir = fullfile(rootDir, 'results');
 if ~exist(resultsDir, 'dir'), mkdir(resultsDir); end % 确保结果目录存在
 
 %% 数据集设置 
-dataset_list = 1:12; 
+dataset_list = [1 2 15 3 11]; 
 
 %% 参数定义 (网格搜索空间)
 param_anchors_rate = [10 12];
-param_order = 3:6;
+param_order = 2:5;
 param_num_sampling = 3:7;
 param_k = [5 7 10 15];
 param_rng = 2:2:16;

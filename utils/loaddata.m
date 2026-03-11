@@ -1,36 +1,45 @@
 function [X,Y] = loaddata(ind)
-%UNTITLED2 此处显示有关此函数的摘要
 %   此处显示详细说明
 if ind == 1
-    load('coil-20_1000.mat');
+    data = load('COIL20.mat'); % 1,440
+    X = data.fea;
+    Y = data.gnd;
 elseif ind ==2
-    load('coil-100_1000.mat');
+    data = load('COIL100.mat'); % 7,200
+    X = data.fea;
+    Y = data.gnd;
 elseif ind ==3
-    load('MSRA25_1024.mat');
+    data = load('yeast.mat'); % 1,484
+    X = data.fea;
+    Y = data.gnd;
 elseif ind ==4
-    load('PIE_vec_rate20.mat');
+    load('MSRA25.mat'); % 1,799
 elseif ind ==5
-    load('minist_5000_50.mat');
+    data = load('OpticDigits.mat'); % 5,620
+    X = data.fea;
+    Y = data.gnd;
 elseif ind ==6
-    load('PIE_vec.mat');
-elseif ind ==11
-    data = load('OpticDigits.mat');
+    load('ISOLET.mat'); % 7,797
+elseif ind ==7
+    data = load('USPS.mat'); % 9,298
     X = data.fea;
     Y = data.gnd;
-elseif ind ==12
-    data = load('USPS.mat');
+elseif ind ==8
+    data = load('PenDigits.mat'); % 10,992
     X = data.fea;
     Y = data.gnd;
-elseif ind ==13
-    data = load('MNIST_full.mat');
+elseif ind ==9
+    load('LetterRecognition.mat'); % 20,000
+elseif ind ==10
+    data = load('MNIST_1w.mat'); % 10,000
     X = data.fea;
     Y = data.gt;
-elseif ind ==14
-    data = load('PenDigits.mat');
+elseif ind ==11
+    data = load('MNIST_full.mat'); % 70,000
     X = data.fea;
-    Y = data.gnd;
-elseif ind == 15
-    data = load('yeast.mat');
+    Y = data.gt;
+elseif ind ==12
+    data = load('covtype.mat'); % 581,012
     X = data.fea;
     Y = data.gnd;
 end
