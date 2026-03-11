@@ -1,4 +1,4 @@
-function [F,obj,runtime,alphaA] = MDC(W,F)
+function [F,obj,runtime,alphaA] = MDC_v2(W,F)
 tic % 开始计时
 %% 初始化参数设置
 NITR = 100; 
