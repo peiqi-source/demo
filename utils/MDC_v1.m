@@ -1,4 +1,4 @@
-function [F,obj,runtime,alphaA] = MDC(W,F)
+function [F,obj,runtime,alphaA] = MDC_v1(W,F)
 % X: 1 by V cell, X{1,v} n by d, where n is the number of objects and d is
 % the dimensionality, V is the view number
 % c: number of clusters

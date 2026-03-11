@@ -1,4 +1,4 @@
-function [labels_all, obj_all, runtime, alphaA_all] = AHD_EC(k, order, X, anchors, c, anchor_select)
+function [labels_all, obj_all, runtime, alphaA_all] = AHD_EC_v1(k, order, X, anchors, c, anchor_select)
 %%
 tic;
 [~, num_sampling] = size(anchors);
@@ -68,11 +68,11 @@ obj_all    = cell(1,2);
 alphaA_all  = cell(1,2);
 for run_id = 1:2
     if run_id == 1
-        F_init = Y_Initialize_SVD(S, c); % 初始化 指示矩阵（离散聚类指示矩阵F）
+        F_init = Y_Initialize_SVD_v1(S, c); % 初始化 指示矩阵（离散聚类指示矩阵F）
     elseif run_id == 2
         F_init = Y_Initialize_rand(S, c); % 初始化一个随机 one-hot 指示矩阵（离散聚类指示矩阵F）
     end
-    [labels_i, obj_i, ~, alphaA_i] = MDC(S,F_init); % MDC 会学习每个基础聚类的权重 alpha，并更新最终聚类 F
+    [labels_i, obj_i, ~, alphaA_i] = MDC_v1(S,F_init); % MDC 会学习每个基础聚类的权重 alpha，并更新最终聚类 F
     labels_all{run_id} = labels_i;
     obj_all{run_id}    = obj_i;
     alphaA_all{run_id}  = alphaA_i;
