@@ -44,7 +44,7 @@ for ar = param_anchors_rate
                     end
                     fprintf("=== 运行进度 %d / %d ===", loop, 2*4*4*4*6);
                     % 1. 运行核心实验
-                    [F, obj, runtime, alphaA] = AHD_EC(k_val, ord, X, anchors, c);
+                    [F, obj, runtime, alphaA] = AHD_EC_v1(k_val, ord, X, anchors, c);
                     % 2. 处理每一次运行的两个结果 
                     [ACC, MIhat, Purity, Fscore, P, R, RI] = ClusteringMeasure2(Y, F);
                     % 3. 构建单行表格
