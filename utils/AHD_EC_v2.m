@@ -1,4 +1,4 @@
-function [F, obj, runtime, alphaA] = AHD_EC(k, order, X, anchors, c)
+function [F_all, obj_all, runtime, alphaA_all] = AHD_EC(k, order, X, anchors, c)
 %rng(c);         % 锁定种子
 %%
 tic;
@@ -51,7 +51,7 @@ end
 
 %%
 disp('---Generate consensus clustering---')
-labels_all = cell(1,2);
+F_all = cell(1,2);
 obj_all    = cell(1,2);
 alphaA_all  = cell(1,2);
 for run_id = 1:2
@@ -61,7 +61,7 @@ for run_id = 1:2
         F_init = Y_Initialize_rand(S, c); % 初始化一个随机 one-hot 指示矩阵（离散聚类指示矩阵F）
     end
     [labels_i, obj_i, ~, alphaA_i] = MDC_v2(S,F_init); % MDC 会学习每个基础聚类的权重 alpha，并更新最终聚类 F
-    labels_all{run_id} = labels_i;
+    F_all{run_id} = labels_i;
     obj_all{run_id}    = obj_i;
     alphaA_all{run_id}  = alphaA_i;
 end
