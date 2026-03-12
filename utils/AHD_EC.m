@@ -65,7 +65,7 @@ for i = 1:length(B)
 end
 
 %%
-% 使用纯随机初始化 
+% 使用较优质的一阶二部图的基聚类结果代替纯随机初始化 
 F_init = H{1};
 % 传入 H 而不是 S
 [F, obj, ~, alphaA] = MDC(H, F_init); 
