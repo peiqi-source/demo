@@ -5,22 +5,31 @@ tic;
 
 B1_cell = cell(1, num_sampling);
 for t = 1:num_sampling
+    if anchors(t) >= num
+        anchors(t) = 9 * c; % 保底一：退回到 9*c
+        if anchors(t) >= num 
+            anchors(t) = num - 2; % 保底二：如果 9*c 依然比总样本大，最多取 num-2
+        end
+    end
     % 1. 快速锚点选择与距离计算
-    [~, ind, ~] = graphgen_anchor(X, anchors(t)); 
-    centers = X(ind, :);
-    if num <= anchors(t), anchors(t) = 9*c; end
+    if num > 9000
+        ind = randperm(num, anchors(t)); 
+        centers = X(ind, :);
+    else
+        [~, ind, ~] = graphgen_anchor(X, anchors(t)); 
+        centers = X(ind, :);
+    end
+    % 使用底层优化的 pdist2 极速获取最小的 k+1 个平方距离，彻底消灭 O(N*m) 内存核弹！
+    [D_knn_T, idx_knn_T] = pdist2(centers, X, 'squaredeuclidean', 'Smallest', k+1);
+    D_knn = D_knn_T';       
+    col_idx = idx_knn_T';   
     
-    D = L2_distance_1(X', centers'); 
-    [D_sort, idx] = sort(D, 2);
-    
-    % 2. 极限向量化构建一阶稀疏二部图
-    D_knn = D_sort(:, 1:k+1);
-    di_k1 = D_knn(:, k+1);
+    % 极限向量化构建一阶稀疏二部图
+    di_k1 = D_knn(:, end);
     denominator = k * di_k1 - sum(D_knn(:, 1:k), 2) + eps;
     vals = (repmat(di_k1, 1, k+1) - D_knn) ./ repmat(denominator, 1, k+1);
-    
     row_idx = repmat((1:num)', 1, k+1);
-    col_idx = idx(:, 1:k+1);
+    
     % 直接生成 N x m 的稀疏矩阵！
     B1_cell{1,t} = sparse(row_idx(:), col_idx(:), vals(:), num, anchors(t)); 
 end
@@ -33,7 +42,7 @@ for t = 1:num_sampling
     for d = 2:order
         temp = U * (sigma.^(2*d-1) * Vt'); 
         temp(temp < eps) = 0;
-        B{d,t} = temp ./ (sum(temp, 2) + eps);
+        B{d,t} = temp ./ (sum(temp, 2) + eps); % 行归一化转移概率
     end
 end
 
@@ -42,10 +51,17 @@ c_base = c:1:(c+order*num_sampling-1);
 B = reshape(B, [], 1);
 H = cell(length(B), 1); % 指示矩阵为 H
 
+if num > 10000
+    rep_times = 1; % 降维打击：大图极易聚类，不需要多次重启，省下 90% 时间！
+else
+    rep_times = 10; % 小图流形复杂：保持 10 次重启以榨干最高精度。
+end
+
 for i = 1:length(B)
-    [labels, ~] = Tcut_for_bipartite_graph(B{i}, c_base(i), 100, 10); 
+    [labels, ~] = Tcut_for_bipartite_graph(B{i}, c_base(i), 100, rep_times); 
     % 直接生成 N x c 的稀疏指示矩阵
     H{i} = sparse(1:num, labels, 1, num, c_base(i)); 
+    B{i} = []; % 用完即毁！防止几十个高阶图堆积撑爆内存！
 end
 
 %%

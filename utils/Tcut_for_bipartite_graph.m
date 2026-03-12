@@ -12,13 +12,14 @@ if nargin < 3
     maxKmIters = 100;
 end
 
-[Nx,Ny] = size(B);
-if Ny < Nseg
-%     error('Need more columns!');
-    B(1,Nseg)=0;
+[Nx,Ny] = size(B); % Nx：样本数，Ny：锚点数
+if Ny < Nseg % 锚点数少于聚类数
+    %error('Need more columns!');
+    B(1,Nseg)=0; % 把 B 扩展到第 Nseg 列，其余新元素默认为 0。
     Ny = Nseg;
 end
 
+% 构造 𝐷𝑥 −1
 dx = sum(B,2);
 dx(dx==0) = 1e-10; % Just to make 1./dx feasible.
 Dx = sparse(1:Nx,1:Nx,1./dx); 
@@ -35,11 +36,18 @@ nWy = D*Wy*D;
 clear Wy
 nWy = (nWy+nWy')/2;
 
-% computer eigenvectors
-[evec,eval] = eig(full(nWy)); 
+% computer eigenvectors (使用 eigs 极速提取前 Nseg 个特征向量)
+try
+    % 'la' 表示提取 Largest Algebraic (代数最大) 的 Nseg 个特征值
+    [evec, eval] = eigs(nWy, Nseg, 'la'); 
+catch
+    [evec, eval] = eig(full(nWy));
+end
+
 clear nWy   
-[~,idx] = sort(diag(eval),'descend');
-Ncut_evec = D*evec(:,idx(1:Nseg)); 
+
+[~,idx] = sort(diag(eval), 'descend');
+Ncut_evec = D*evec(:,idx(1:Nseg));
 clear D
 
 %%% compute the Ncut eigenvectors on the entire bipartite graph (transfer!)

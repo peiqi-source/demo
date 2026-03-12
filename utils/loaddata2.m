@@ -33,7 +33,7 @@ elseif ind ==9
 elseif ind ==10
     data = load('MNIST_1w.mat'); % 10,000
     X = data.fea;
-    Y = data.gt;
+    Y = data.gnd;
 elseif ind ==11
     data = load('MNIST_full.mat'); % 70,000
     X = data.fea;

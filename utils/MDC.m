@@ -1,11 +1,19 @@
-function [F, obj, runtime, alphaA] = MDC(H, F)
+function [f_label, obj, runtime, alphaA] = MDC(H, F_init)
 tic;
 NITR = 100; 
-[num, c] = size(F); 
+[num, c] = size(F_init); 
 V = length(H); 
 mu = 1e-4; rho = 1.01; 
 alphaA = []; alpha = ones(V, 1) / V; alphaA = [alphaA, alpha]; 
 
+%% 数据结构剥离：剥离稀疏矩阵操作，转换为纯 1D 数组 O(1) 极速更新
+if size(F_init, 2) > 1
+    [~, f_label] = max(F_init, [], 2);
+    F_sparse = F_init;
+else
+    f_label = F_init;
+    F_sparse = sparse(1:num, f_label, 1, num, c);
+end
 %% 预计算：极速图间相似度 (基于迹技巧)
 B1 = zeros(V, V);
 for u = 1:V
@@ -25,11 +33,11 @@ end
 %% 初始化相交矩阵 C 
 C = cell(1, V);
 for v = 1:V
-    C{v} = H{v}' * F; % c_v x c 大小的极小矩阵
+    C{v} = H{v}' * F_sparse; % c_v x c 大小的极小矩阵
 end
 
 %% 初始化全局统计量
-ff = sum(F, 1); 
+ff = sum(F_sparse, 1); 
 fsf = zeros(1, c);
 for v = 1:V
     fsf = fsf + alpha(v) * sum(C{v}.^2, 1); % 极其优雅的等价计算
@@ -46,8 +54,8 @@ for iter = 1:NITR
     for it = 1:10
         converged = true; 
         for i = 1:num 
-            m = find(F(i, :)); 
-            if isempty(m), continue; end
+            m = f_label(i); % 直接从 1D 数组读，摒弃 find(F(i,:)) 的巨额开销
+            if m == 0, continue; end
             
             % 用极小的 C 矩阵直接拼出 ui，复杂度 O(V * c)
             ui = zeros(1, c);
@@ -79,7 +87,7 @@ for iter = 1:NITR
                     C{v}(q, p) = C{v}(q, p) + 1;
                 end
                 
-                F(i, m) = 0; F(i, p) = 1;
+                f_label(i) = p;
             end
         end
         if converged, break; end
@@ -109,6 +117,5 @@ for iter = 1:NITR
         break;
     end
 end
-[~, F] = max(F, [], 2);
 runtime = toc;
 end

@@ -1,4 +1,4 @@
-%% exp_parameter_write.m 
+%% exp_parameter_write.m 性能指标提升实验 (彻底解决动态扩容与高频 I/O 写入慢的问题)
 clear;
 clc;
 close all;
@@ -11,42 +11,45 @@ resultsDir = fullfile(rootDir, 'results');
 if ~exist(resultsDir, 'dir'), mkdir(resultsDir); end % 确保结果目录存在
 
 %% 数据集设置 
-dataset_list = [1 2 15 3 11]; 
+dataset_list = 1; 
 
 %% 参数定义 (网格搜索空间)
 param_anchors_rate = [10 12];
-param_order = 2:5;
-param_num_sampling = 3:7;
+param_order = 2:6;
+param_num_sampling = 2:5;
 param_k = [5 7 10 15];
 param_rng = 2:2:16;
 delta = 6;
 
-% 计算单个数据集的总循环次数，用于重置进度提示
+% 计算单个数据集的总循环次数，用于重置进度提示与预分配
 total_loops_per_dataset = length(param_anchors_rate) * length(param_order) * ...
                           length(param_num_sampling) * length(param_k) * length(param_rng);
 
 %% 开始最外层数据集遍历
 for data_idx = dataset_list
-
-    % 清空上一轮数据集在内存中暂存的结构体
-    clear X Y all_results_mat result_data F obj alphaA H B B1_cell C U;
-
-    % 每次进入新数据集，进度清零
-    loop_idx = 1; 
     
-    % 为当前数据集生成专属的 CSV 和 MAT 文件名
+    % 强制回收上一轮的所有大型变量
+    clear X Y all_results_mat result_cell F obj alphaA H B B1_cell C U;
+    
+    loop_idx = 1; 
     timestamp = datestr(now, 'yyyymmdd_HHMMSS'); 
     csvFileName = fullfile(resultsDir, sprintf('GridSearch_Data%d_%s.csv', data_idx, timestamp));
     matFileName = fullfile(resultsDir, sprintf('Data%d_%s.mat', data_idx, timestamp));
     
-    % 是否更新表头
-    isFirst = true; 
+    % 预分配 .mat 的结构体空间
+    empty_struct = struct('AnchorsRate', [], 'Order', [], 'NumSampling', [], ...
+        'K', [], 'Seed', [], 'ACC', [], 'NMI', [], 'Purity', [], 'Fscore', [], ...
+        'Runtime', [], 'F_Labels', [], 'Obj_History', [], 'alphaA_History', []);
+    all_results_mat = repmat(empty_struct, total_loops_per_dataset, 1);
+    
+    % 预分配 CSV 的内存元胞空间 (彻底移除循环内的 writetable!)
+    result_cell = cell(total_loops_per_dataset, 16);
     
     % 加载当前数据集
     fprintf('\n======================================================\n');
     fprintf('>>> 正在加载并运行数据集编号: %d <<<\n', data_idx);
-    fprintf('>>> 指标 CSV 将实时保存至: %s\n', csvFileName);
-    fprintf('>>> 全量 MAT 将在跑完后保存至: %s\n', matFileName);
+    fprintf('>>> 实验结束后，指标 CSV 将一次性保存至: %s\n', csvFileName);
+    fprintf('>>> 实验结束后，全量 MAT 将一次性保存至: %s\n', matFileName);
     fprintf('======================================================\n');
     
     [X, Y] = loaddata(data_idx);
@@ -66,7 +69,6 @@ for data_idx = dataset_list
                             anchors = [anchors, ar*c+(t-1)*delta*c];
                         end
                         
-                        % --- 进度提示 (按单个数据集计算) ---
                         fprintf('进度: %d / %d (%.2f%%) | Data: %d | AR=%d, Ord=%d, NS=%d, K=%d, Seed=%d ... ', ...
                             loop_idx, total_loops_per_dataset, (loop_idx/total_loops_per_dataset)*100, data_idx, ar, ord, ns, k_val, seed);
                         
@@ -74,29 +76,16 @@ for data_idx = dataset_list
                         [F, obj, runtime, alphaA] = AHD_EC(k_val, ord, X, anchors, c);
                         
                         % 2. 评估聚类结果
-                        [ACC, MIhat, Purity, Fscore, P, R, RI] = ClusteringMeasure2(Y, F);
+                        [ACC, MIhat, Purity, Fscore, P, R, RI] = ClusteringMeasure4(Y, F);
                         
                         % 3. 将矩阵转化为字符串 (仅供 CSV 使用)
                         obj_str = mat2str(round(obj, 6)); 
                         alphaA_str = mat2str(round(alphaA, 6)); 
                         
-                        % 4. 构建单行表格
-                        result_data = table(data_idx, ar, ord, ns, k_val, seed, ...
-                            ACC, MIhat, Purity, Fscore, P, R, RI, runtime, ...
-                            {obj_str}, {alphaA_str}, ...
-                            'VariableNames', {'DatasetID', 'AnchorsRate', 'Order', 'NumSampling', 'K', 'Seed', ...
-                            'ACC', 'NMI', 'Purity', 'Fscore', 'P', 'R', 'RI', 'Runtime', ...
-                            'Obj_History', 'alphaA_History'});
+                        result_cell(loop_idx, :) = {data_idx, ar, ord, ns, k_val, seed, ...
+                            ACC, MIhat, Purity, Fscore, P, R, RI, runtime, obj_str, alphaA_str};
                         
-                        % 5. 追加写入当前数据集的 CSV
-                        if isFirst
-                            writetable(result_data, csvFileName, 'WriteMode', 'overwrite');
-                            isFirst = false;
-                        else
-                            writetable(result_data, csvFileName, 'WriteMode', 'append', 'WriteVariableNames', false);
-                        end
-                        
-                        % 将每一次实验的 "原生矩阵格式" 塞进结构体数组暂存
+                        % 直接往预先挖好的"坑"里填数据
                         all_results_mat(loop_idx).AnchorsRate = ar;
                         all_results_mat(loop_idx).Order = ord;
                         all_results_mat(loop_idx).NumSampling = ns;
@@ -113,19 +102,31 @@ for data_idx = dataset_list
                         
                         fprintf('Done.\n');
                         loop_idx = loop_idx + 1;
+                        
+                        % 清空不需要的临时大矩阵
+                        clear F obj alphaA obj_str alphaA_str;
                     end
                 end
             end
         end
     end
     
-    % 当一个数据集的所有参数组合跑完后，把结构体数组连同原始特征 X 和 Y 一把存进 .mat
-    fprintf('>>> 正在打包保存数据集 %d 的全量 .mat 数据...\n', data_idx);
-    save(matFileName, 'all_results_mat', 'X', 'Y', 'c', '-v7.3');
-    clear all_results_mat; % 立刻释放可能高达几个G的结构体
-    fclose('all');         % 强行释放所有底层文件读写句柄，防 I/O 阻塞
-    fprintf('>>> 数据集 %d 运行与保存完毕！\n', data_idx);
+    % 循环彻底结束，执行唯一一次集中式硬盘 I/O 写入！
+    fprintf('\n>>> 正在将数据集 %d 的指标导出至 CSV...\n', data_idx);
+    varNames = {'DatasetID', 'AnchorsRate', 'Order', 'NumSampling', 'K', 'Seed', ...
+                'ACC', 'NMI', 'Purity', 'Fscore', 'P', 'R', 'RI', 'Runtime', ...
+                'Obj_History', 'alphaA_History'};
+    result_table = cell2table(result_cell, 'VariableNames', varNames);
+    writetable(result_table, csvFileName); % 整个数据集只写 1 次！
     
+    fprintf('>>> 正在打包保存数据集 %d 的全量 .mat 数据...\n', data_idx);
+    save(matFileName, 'all_results_mat', 'X', 'Y', 'c', '-v7.3'); 
+    
+    % 跑完一个数据集后，执行终极清理
+    clear all_results_mat result_cell result_table; 
+    fclose('all');         
+    
+    fprintf('>>> 数据集 %d 运行与保存完毕！内存已清空！\n', data_idx);
 end
 
-fprintf('\n所有数据集实验全部结束！CSV 与 MAT 已稳妥保存！\n');
+fprintf('\n 所有数据集实验全部结束！CSV 与 MAT 已稳妥保存！\n');
