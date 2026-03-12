@@ -18,8 +18,8 @@ c = length(unique(Y));
 
 %% set parameter
 k = 5;
-order = 5;
-num_sampling = 5;
+order = 3;
+num_sampling = 3;
 anchors_rate = 10;
 delta = 5;
 
