@@ -12,7 +12,7 @@ for t = 1:num_sampling
         end
     end
     % 1. 快速锚点选择与距离计算
-    if num > 9000
+    if num > 9900
         ind = randperm(num, anchors(t)); 
         centers = X(ind, :);
     else
@@ -51,7 +51,7 @@ c_base = c:1:(c+order*num_sampling-1);
 B = reshape(B, [], 1);
 H = cell(length(B), 1); % 指示矩阵为 H
 
-if num > 10000
+if num > 9900
     rep_times = 1; % 降维打击：大图极易聚类，不需要多次重启，省下 90% 时间！
 else
     rep_times = 10; % 小图流形复杂：保持 10 次重启以榨干最高精度。

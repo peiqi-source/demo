@@ -14,12 +14,21 @@ if ~exist(resultsDir, 'dir'), mkdir(resultsDir); end % 确保结果目录存在
 dataset_list = 1; 
 
 %% 参数定义 (网格搜索空间)
+
 param_anchors_rate = [10 12];
 param_order = 2:6;
 param_num_sampling = 2:5;
 param_k = [5 7 10 15];
 param_rng = 2:2:16;
-delta = 6;
+delta = 5;
+
+% 大规模数据集
+% param_anchors_rate = [10 20];
+% param_order = 3:6;
+% param_num_sampling = 3:5;
+% param_k = [5 7 10 15];
+% param_rng = 2:3:14;
+% delta = 50;
 
 % 计算单个数据集的总循环次数，用于重置进度提示与预分配
 total_loops_per_dataset = length(param_anchors_rate) * length(param_order) * ...
@@ -37,7 +46,7 @@ for data_idx = dataset_list
     matFileName = fullfile(resultsDir, sprintf('Data%d_%s.mat', data_idx, timestamp));
     
     % 预分配 .mat 的结构体空间
-    empty_struct = struct('AnchorsRate', [], 'Order', [], 'NumSampling', [], ...
+    empty_struct = struct('Anchors', [], 'Order', [], 'NumSampling', [], ...
         'K', [], 'Seed', [], 'ACC', [], 'NMI', [], 'Purity', [], 'Fscore', [], ...
         'Runtime', [], 'F_Labels', [], 'Obj_History', [], 'alphaA_History', []);
     all_results_mat = repmat(empty_struct, total_loops_per_dataset, 1);
@@ -74,19 +83,21 @@ for data_idx = dataset_list
                         
                         % 1. 运行核心实验
                         [F, obj, runtime, alphaA] = AHD_EC(k_val, ord, X, anchors, c);
+                        fprintf("Over ... ");
                         
                         % 2. 评估聚类结果
                         [ACC, MIhat, Purity, Fscore, P, R, RI] = ClusteringMeasure4(Y, F);
                         
                         % 3. 将矩阵转化为字符串 (仅供 CSV 使用)
+                        anchors_str = mat2str(anchors);
                         obj_str = mat2str(round(obj, 6)); 
                         alphaA_str = mat2str(round(alphaA, 6)); 
                         
-                        result_cell(loop_idx, :) = {data_idx, ar, ord, ns, k_val, seed, ...
+                        result_cell(loop_idx, :) = {data_idx, anchors_str, ord, ns, k_val, seed, ...
                             ACC, MIhat, Purity, Fscore, P, R, RI, runtime, obj_str, alphaA_str};
                         
                         % 直接往预先挖好的"坑"里填数据
-                        all_results_mat(loop_idx).AnchorsRate = ar;
+                        all_results_mat(loop_idx).Anchors = anchors;
                         all_results_mat(loop_idx).Order = ord;
                         all_results_mat(loop_idx).NumSampling = ns;
                         all_results_mat(loop_idx).K = k_val;
@@ -113,7 +124,7 @@ for data_idx = dataset_list
     
     % 循环彻底结束，执行唯一一次集中式硬盘 I/O 写入！
     fprintf('\n>>> 正在将数据集 %d 的指标导出至 CSV...\n', data_idx);
-    varNames = {'DatasetID', 'AnchorsRate', 'Order', 'NumSampling', 'K', 'Seed', ...
+    varNames = {'DatasetID', 'Anchors', 'Order', 'NumSampling', 'K', 'Seed', ...
                 'ACC', 'NMI', 'Purity', 'Fscore', 'P', 'R', 'RI', 'Runtime', ...
                 'Obj_History', 'alphaA_History'};
     result_table = cell2table(result_cell, 'VariableNames', varNames);
