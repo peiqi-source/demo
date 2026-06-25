@@ -1,0 +1,7 @@
+*.mat binary
+*.pdf binary
+*.pptx binary
+*.xlsx binary
+*.zip binary
+*.rar binary
+*.drawio text

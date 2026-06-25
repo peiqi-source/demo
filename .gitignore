@@ -1,0 +1,49 @@
+# MATLAB autosave and temporary files
+*.asv
+*.bak
+*.tmp
+*~
+
+# MATLAB binaries and generated project files
+*.mex*
+slprj/
+sfprj/
+*.slxc
+*.rtw
+resources/project/Preferences.xml
+.SimulinkProject/
+
+# Python cache and virtual environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# IDE and OS metadata
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Generated experiment outputs
+results/
+**/results/
+**/results_*/
+**/*_details*/
+*.log
+*.err
+matlab_crash_dump.*
+
+# Large generated scalability data. Keep the small committed smoke-test file.
+datasets/MNIST_Scalability_Data/MNIST_*.mat
+!datasets/MNIST_Scalability_Data/MNIST_5000.mat
+
+# Local manuscript and private submission materials
+论文/
+paper_end_work/
+manuscript*.docx
+*.aux
+*.bbl
+*.blg
+*.out
