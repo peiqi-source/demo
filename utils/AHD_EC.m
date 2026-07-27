@@ -12,13 +12,9 @@ for t = 1:num_sampling
         end
     end
     % 1. 快速锚点选择与距离计算
-    if num > 11000
-        ind = randperm(num, anchors(t)); 
-        centers = X(ind, :);
-    else
-        [~, ind, ~] = graphgen_anchor(X, anchors(t)); 
-        centers = X(ind, :);
-    end
+    [~, ind, ~] = graphgen_anchor(X, anchors(t)); 
+    centers = X(ind, :);
+    
     % 使用底层优化的 pdist2 极速获取最小的 k+1 个平方距离，彻底消灭 O(N*m) 内存核弹！
     [D_knn_T, idx_knn_T] = pdist2(centers, X, 'squaredeuclidean', 'Smallest', k+1);
     D_knn = D_knn_T';       
@@ -59,11 +55,8 @@ c_base = c:1:(c+order*num_sampling-1);
 B = reshape(B, [], 1);
 H = cell(length(B), 1); % 指示矩阵为 H
 
-if num > 11000
-    rep_times = 1; % 降维打击：大图极易聚类，不需要多次重启，省下 90% 时间！
-else
-    rep_times = 10; % 小图流形复杂：保持 10 次重启以榨干最高精度。
-end
+rep_times = 10; % 小图流形复杂：保持 10 次重启以榨干最高精度。
+
 % rep_times = 10; % 小图流形复杂：保持 10 次重启以榨干最高精度。
 for i = 1:length(B)
     [labels, ~] = Tcut_for_bipartite_graph(B{i}, c_base(i), 100, rep_times); 
