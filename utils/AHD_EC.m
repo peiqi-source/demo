@@ -57,7 +57,6 @@ H = cell(length(B), 1); % 指示矩阵为 H
 
 rep_times = 10; % 小图流形复杂：保持 10 次重启以榨干最高精度。
 
-% rep_times = 10; % 小图流形复杂：保持 10 次重启以榨干最高精度。
 for i = 1:length(B)
     [labels, ~] = Tcut_for_bipartite_graph(B{i}, c_base(i), 100, rep_times); 
     % 直接生成 N x c 的稀疏指示矩阵
