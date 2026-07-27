@@ -58,14 +58,8 @@ for t = 1:num_sampling
         end
     end
 
-    % 与原始 AHD_EC.m 保持一致：大样本随机采样，小样本 graphgen_anchor。
-    if num > 11000
-        ind = randperm(num, anchors(t));
-        centers = X(ind, :);
-    else
-        [~, ind, ~] = graphgen_anchor(X, anchors(t));
-        centers = X(ind, :);
-    end
+    [~, ind, ~] = graphgen_anchor(X, anchors(t));
+    centers = X(ind, :);
 
     % 使用 pdist2 的 Smallest 选项，只取 k+1 个最近锚点，避免构造完整距离矩阵。
     [D_knn_T, idx_knn_T] = pdist2(centers, X, 'squaredeuclidean', 'Smallest', k + 1);
@@ -134,12 +128,7 @@ end
 c_base = c:1:(c + num_base_clusterings - 1);
 H = cell(num_base_clusterings, 1);
 
-% 与原始 AHD_EC.m 保持一致的 Tcut 重启策略。
-if use_AW || use_MS || use_HO
-    rep_times = 20;
-else
-    rep_times = 1;
-end
+rep_times = 20;
 
 for i = 1:num_base_clusterings
     src_idx = representation_source_index(i);
